@@ -1,8 +1,4 @@
-#Clear workspace and change directory
-rm(list=ls())
 setwd("/Users/wenjian/Desktop/R programming/Cleaning data/Project")
-
-        ##Q1. Merges the training and the test sets to create one data set.
 #Define all file paths
 #File paths for 561 variables and 6 activities
 varname<-file.path("/Users/wenjian/Desktop/R programming/Cleaning data/UCI HAR Dataset/features.txt")
@@ -56,20 +52,17 @@ train<-cbind.data.frame(subtrain,labeltrain,train)
 #Merge both data sets
 combined<-rbind.data.frame(test,train)
 
-        ##Q2. Extracts only the measurements on the mean and standard deviation for each measurement.
 #Create a search to filter out mean and std variables
 sift<-grepl("mean\\(\\)|std\\(\\)",names(combined))
 #Preserve activity code and subject columns
 sift[1:2]<-c(TRUE,TRUE)
 combined<-combined[,which(sift)]
 
-        ##Q3.Uses descriptive activity names to name the activities in the data set
 #Match activity codes with descriptive activity labels
 activities<-read.table(actname)
 names(activities)<-c("activitycode","activitynames")
 combined<-merge(activities,combined,by="activitycode")
 
-        #4. Appropriately labels the data set with descriptive variable names.
 #Clean up data variable names, using lower case and removing unwanted symbols
 rename<-names(combined)
 rename<-tolower(rename)
@@ -80,11 +73,8 @@ rename<-gsub("^f","freq",rename)
 rename<-gsub("(body)+","body",rename)
 names(combined)<-rename
 
-        #5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
 #dplyr package to help summarise data (mean) by each subject and activity names
 library(dplyr)
 tidy<-copy(combined)
 tidy$activitycode<-NULL
 tidy<-group_by(tidy,subject,activitynames) %>% summarise_each(funs(mean))
-
-write.table(tidy,file="output.txt",sep=" ")
